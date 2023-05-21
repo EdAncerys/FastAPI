@@ -2,7 +2,7 @@
 
 Run the server:
 ```commandline
-$ uvicorn example:app
+$ uvicorn main:app
 ```
 
 #### Packages used

@@ -1,49 +1,64 @@
-from requests_html import HTMLSession
+import asyncio
+from requests_html import AsyncHTMLSession
 
 
 class TravisPerkinsScraper:
 
     def __init__(self):
-        self.session = HTMLSession()
+        self.session = AsyncHTMLSession()
 
-    def scrape_products_by_url(self, url):
-        response = self.session.get(url)
-        response.html.render()
+    async def scrape_products_from_url(self, url):
+        response = await self.session.get(url)
+        await response.html.arender()
         print(f'Response code: {response.status_code}')
 
+        blob = []
         categories = response.html.find('div[data-test-id="category-wrapper"]')
         for category in categories:
             title = category.find('h6', first=True).text.strip()
             img_url = category.find('img', first=True).attrs['src'][2:]
-            print(f"Category Name: {title}\nImage URL: {img_url}\n")
+            blob.append({"title": title, "url": img_url})
+            # print(f"Category Name: {title}\nImage URL: {img_url}\n")
+        return blob
 
-    def scrape_categories(self):
+    async def scrape_categories(self):
         url = f'https://www.travisperkins.co.uk/product/c/1000000/'
-        self.scrape_products_by_url(url)
+        return await self.scrape_products_from_url(url)
 
-    def scrape_building_materials(self):
+    async def scrape_building_materials(self):
         url = f'https://www.travisperkins.co.uk/product/building-materials/c/1500029/'
-        self.scrape_products_by_url(url)
+        return await self.scrape_products_from_url(url)
 
-    def scrape_timber_materials(self):
+    async def scrape_timber_materials(self):
         url = f'https://www.travisperkins.co.uk/product/timber-and-sheet-materials/c/1500000/'
-        self.scrape_products_by_url(url)
+        return await self.scrape_products_from_url(url)
 
-    def scrape_decorating_materials(self):
+    async def scrape_decorating_materials(self):
         url = f'https://www.travisperkins.co.uk/product/decorating-and-interiors/c/1500538/'
-        self.scrape_products_by_url(url)
+        return await self.scrape_products_from_url(url)
 
-    def scrape_products_by_category(self, category):
+    async def scrape_products_by_category(self, category: object) -> object:
         if category == "Building Materials":
-            self.scrape_building_materials()
+            return await self.scrape_building_materials()
         if category == "Timber & Sheet Materials":
-            self.scrape_timber_materials()
+            return await self.scrape_timber_materials()
         if category == "Decorating & Interiors":
-            self.scrape_decorating_materials()
+            return await self.scrape_decorating_materials()
         else:
-            print(f"No handler found for the category: {category}")
+            error = f"No handler found for the category: {category}"
+            print(error)
+            return error
 
 
-instance = TravisPerkinsScraper()
-instance.scrape_categories()
-instance.scrape_products_by_category('Decorating & Interiors')
+async def main():
+    # Wrap instance in async function to call it
+    instance = TravisPerkinsScraper()
+    data = await instance.scrape_categories()
+    # await instance.scrape_products_by_category('Decorating & Interiors')
+    print(data)
+
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+
