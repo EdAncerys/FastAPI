@@ -1,71 +1,49 @@
 from requests_html import HTMLSession
 
+
 class TravisPerkinsScraper:
+
     def __init__(self):
         self.session = HTMLSession()
 
-    def scrape_categories(self):
-        url = f'https://www.travisperkins.co.uk/product/c/1000000/'
+    def scrape_products_by_url(self, url):
         response = self.session.get(url)
         response.html.render()
         print(f'Response code: {response.status_code}')
 
-        categories = response.html.find('div[data-test-id="category-wrapper"]') # 📌 Scrape all category divs in page
+        categories = response.html.find('div[data-test-id="category-wrapper"]')
         for category in categories:
-            title = category.find('h6', first=True).text.strip() # Main cat title
-            img_url = category.find('img', first=True).attrs['src'][2:] # Cat pic url
+            title = category.find('h6', first=True).text.strip()
+            img_url = category.find('img', first=True).attrs['src'][2:]
             print(f"Category Name: {title}\nImage URL: {img_url}\n")
+
+    def scrape_categories(self):
+        url = f'https://www.travisperkins.co.uk/product/c/1000000/'
+        self.scrape_products_by_url(url)
 
     def scrape_building_materials(self):
         url = f'https://www.travisperkins.co.uk/product/building-materials/c/1500029/'
-        response = self.session.get(url)
-        response.html.render()
-        print(f'Response code: {response.status_code}')
-
-        categories = response.html.find(
-            'div[data-test-id="category-wrapper"]')  # 📌 Scrape all category divs in page
-        for category in categories:
-            title = category.find('h6', first=True).text.strip()  # Main cat title
-            img_url = category.find('img', first=True).attrs['src'][2:]  # Cat pic url
-            print(f"Category Name: {title}\nImage URL: {img_url}\n")
+        self.scrape_products_by_url(url)
 
     def scrape_timber_materials(self):
         url = f'https://www.travisperkins.co.uk/product/timber-and-sheet-materials/c/1500000/'
-        response = self.session.get(url)
-        response.html.render()
-        print(f'Response code: {response.status_code}')
+        self.scrape_products_by_url(url)
 
-        categories = response.html.find(
-            'div[data-test-id="category-wrapper"]')  # 📌 Scrape all category divs in page
-        for category in categories:
-            title = category.find('h6', first=True).text.strip()  # Main cat title
-            img_url = category.find('img', first=True).attrs['src'][2:]  # Cat pic url
-            print(f"Category Name: {title}\nImage URL: {img_url}\n")
-
-    def scrape_garden_materials(self):
-        url = f'https://www.travisperkins.co.uk/product/gardens-and-landscaping/c/1500098/'
-        response = self.session.get(url)
-        response.html.render()
-        print(f'Response code: {response.status_code}')
-
-        categories = response.html.find(
-            'div[data-test-id="category-wrapper"]')  # 📌 Scrape all category divs in page
-        for category in categories:
-            title = category.find('h6', first=True).text.strip()  # Main cat title
-            img_url = category.find('img', first=True).attrs['src'][2:]  # Cat pic url
-            print(f"Category Name: {title}\nImage URL: {img_url}\n")
+    def scrape_decorating_materials(self):
+        url = f'https://www.travisperkins.co.uk/product/decorating-and-interiors/c/1500538/'
+        self.scrape_products_by_url(url)
 
     def scrape_products_by_category(self, category):
-        url = f"https://www.travisperkins.co.uk/{category}"
-        response = self.session.get(url)
-        response.html.render()
-
-        products = response.html.find('.product-listing')
-        for product in products:
-            name = product.find('.product-title', first=True).text
-            price = product.find('.product-price', first=True).text
-            print(f"Name: {name}\nPrice: {price}\n")
+        if category == "Building Materials":
+            self.scrape_building_materials()
+        if category == "Timber & Sheet Materials":
+            self.scrape_timber_materials()
+        if category == "Decorating & Interiors":
+            self.scrape_decorating_materials()
+        else:
+            print(f"No handler found for the category: {category}")
 
 
 instance = TravisPerkinsScraper()
-instance.scrape_garden_materials()
+instance.scrape_categories()
+instance.scrape_products_by_category('Decorating & Interiors')
