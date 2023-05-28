@@ -1,6 +1,6 @@
 from typing import Union
 from fastapi import FastAPI
-from skrapers.travis_perkins import TravisPerkinsScraper
+from scrapers.travis_perkins import TravisPerkinsScraper
 from urllib.parse import unquote
 
 app = FastAPI()
@@ -12,10 +12,7 @@ travis_instance = TravisPerkinsScraper()
 
 @app.get("/")
 def read_root():
-    return {
-        "msg": "Hello World",
-        "data": "abc"
-    }
+    return {"msg": "Hello World", "data": "abc"}
 
 
 @app.get("/items/{item_id}")
